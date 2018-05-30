@@ -160,7 +160,8 @@
   packages = [
     "common",
     "db",
-    "log"
+    "log",
+    "test"
   ]
   revision = "d970af87248a4e162590300dbb74e102183a417d"
   version = "v0.8.3"
@@ -200,6 +201,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "32412ff6fd1acb0aad683d4758b0b090831c80dcb107791e0ab870e0aeefcbdc"
+  inputs-digest = "b08a5174ec6b4d71257758bb7f08edb89a5e75e9d3283ac12a8aecbc1404ae4b"
   solver-name = "gps-cdcl"
   solver-version = 1

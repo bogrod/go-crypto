@@ -1,10 +1,10 @@
 package crypto
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
 
+	"crypto/subtle"
 	bgls "github.com/Project-Arda/bgls/bgls"
 	curves "github.com/Project-Arda/bgls/curves"
 	. "github.com/tendermint/tmlibs/common"
@@ -44,7 +44,7 @@ func (sig SignatureEd25519) String() string { return fmt.Sprintf("/%X.../", Fing
 
 func (sig SignatureEd25519) Equals(other Signature) bool {
 	if otherEd, ok := other.(SignatureEd25519); ok {
-		return bytes.Equal(sig[:], otherEd[:])
+		return subtle.ConstantTimeCompare(sig[:], otherEd[:]) == 1
 	} else {
 		return false
 	}
@@ -77,7 +77,7 @@ func (sig SignatureSecp256k1) String() string { return fmt.Sprintf("/%X.../", Fi
 
 func (sig SignatureSecp256k1) Equals(other Signature) bool {
 	if otherSecp, ok := other.(SignatureSecp256k1); ok {
-		return bytes.Equal(sig[:], otherSecp[:])
+		return subtle.ConstantTimeCompare(sig[:], otherSecp[:]) == 1
 	} else {
 		return false
 	}
@@ -114,7 +114,7 @@ func (sig SignatureBLS381KOS) String() string { return fmt.Sprintf("/%X.../", Fi
 // Equals checks type and byte equality between signatures
 func (sig SignatureBLS381KOS) Equals(other Signature) bool {
 	if otherBls, ok := other.(SignatureBLS381KOS); ok {
-		return bytes.Equal(sig[:], otherBls[:])
+		return subtle.ConstantTimeCompare(sig[:], otherBls[:]) == 1
 	}
 	return false
 }
