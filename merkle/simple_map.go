@@ -24,16 +24,13 @@ func newSimpleMap() *simpleMap {
 func (sm *simpleMap) Set(key string, value Hasher) {
 	sm.sorted = false
 
-	// Hash the key to blind it... why not?
-	khash := tmhash.Sum([]byte(key))
-
-	// And the value is hashed too, so you can
+	// The value is hashed, so you can
 	// check for equality with a cached value (say)
 	// and make a determination to fetch or not.
 	vhash := value.Hash()
 
 	sm.kvs = append(sm.kvs, cmn.KVPair{
-		Key:   khash,
+		Key:   []byte(key),
 		Value: vhash,
 	})
 }

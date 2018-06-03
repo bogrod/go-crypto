@@ -27,7 +27,7 @@ func SimpleProofsFromHashers(items []Hasher) (rootHash []byte, proofs []*SimpleP
 // SimpleProofsFromMap generates proofs from a map. The keys/values of the map will be used as the keys/values
 // in the underlying key-value pairs.
 // The keys are sorted before the proofs are computed.
-func SimpleProofsFromMap(m map[string]Hasher) (rootHash []byte, proofs []*SimpleProof) {
+func SimpleProofsFromMap(m map[string]Hasher) (rootHash []byte, proofs map[string]*SimpleProof) {
 	sm := newSimpleMap()
 	for k, v := range m {
 		sm.Set(k, v)
@@ -38,7 +38,13 @@ func SimpleProofsFromMap(m map[string]Hasher) (rootHash []byte, proofs []*Simple
 	for _, kvp := range kvs {
 		kvsH = append(kvsH, kvPair(kvp))
 	}
-	return SimpleProofsFromHashers(kvsH)
+
+	rootHash, proofList := SimpleProofsFromHashers(kvsH)
+	proofs = make(map[string]*SimpleProof)
+	for i, kvp := range kvs {
+		proofs[string(kvp.Key)] = proofList[i]
+	}
+	return
 }
 
 // Verify that leafHash is a leaf hash of the simple-merkle-tree
