@@ -9,4 +9,7 @@ var cdc = amino.NewCodec()
 
 func init() {
 	crypto.RegisterAmino(cdc)
+	amino.RegisterInterface((*Info)(nil), nil)
+	amino.RegisterConcrete(ledgerInfo{}, "crypto/keys/ledgerInfo", nil)
+	amino.RegisterConcrete(localInfo{}, "crypto/keys/localInfo", nil)
 }

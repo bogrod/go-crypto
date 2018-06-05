@@ -38,7 +38,7 @@ func (kb dbKeybase) Create(name, passphrase string, algo CryptoAlgo) (Info, stri
 	secret := crypto.CRandBytes(16)
 	priv, err := generate(algo, secret)
 	if err != nil {
-		return Info{}, "", err
+		return nil, "", err
 	}
 
 	// encrypt and persist the key
@@ -63,7 +63,7 @@ func (kb dbKeybase) Recover(name, passphrase, seedphrase string) (Info, error) {
 	words := strings.Split(strings.TrimSpace(seedphrase), " ")
 	secret, err := kb.codec.WordsToBytes(words)
 	if err != nil {
-		return Info{}, err
+		return nil, err
 	}
 
 	// secret is comprised of the actual secret with the type
@@ -73,7 +73,7 @@ func (kb dbKeybase) Recover(name, passphrase, seedphrase string) (Info, error) {
 	algo := byteToCryptoAlgo(typ)
 	priv, err := generate(algo, secret)
 	if err != nil {
-		return Info{}, err
+		return nil, err
 	}
 
 	// encrypt and persist key.
@@ -205,18 +205,22 @@ func (kb dbKeybase) Update(name, oldpass, newpass string) error {
 	if err != nil {
 		return err
 	}
-	key, err := unarmorDecryptPrivKey(info.PrivKeyArmor, oldpass)
-	if err != nil {
-		return err
+	switch info.(type) {
+	case localInfo:
+		key, err := unarmorDecryptPrivKey(info.PrivKeyArmor, oldpass)
+		if err != nil {
+			return err
+		}
+		kb.writeKey(key, name, newpass)
+		return nil
+	default:
+		return fmt.Errorf("Locally stored key required")
 	}
-
-	kb.writeKey(key, name, newpass)
-	return nil
 }
 
 func (kb dbKeybase) writePubKey(pub crypto.PubKey, name string) Info {
 	// make Info
-	info := newInfo(name, pub, "")
+	info := newLocalInfo(name, pub, "")
 
 	// write them both
 	kb.db.SetSync(infoKey(name), info.bytes())
@@ -227,10 +231,19 @@ func (kb dbKeybase) writeKey(priv crypto.PrivKey, name, passphrase string) Info 
 	// generate the encrypted privkey
 	privArmor := encryptArmorPrivKey(priv, passphrase)
 	// make Info
-	info := newInfo(name, priv.PubKey(), privArmor)
+	info := newLocalInfo(name, priv.PubKey(), privArmor)
 
 	// write them both
 	kb.db.SetSync(infoKey(name), info.bytes())
+	return info
+}
+
+func (kb dbKeybase) writeLedgerKey(pub crypto.PubKey, path crypto.DerivationPath, name string) Info {
+	// generate the ledger info
+	info := newLedgerInfo(name, pub, path)
+
+	// write the ledger info
+	kb.db.SetSync(ledgerInfoKey(name), info.bytes())
 	return info
 }
 
@@ -248,4 +261,8 @@ func generate(algo CryptoAlgo, secret []byte) (crypto.PrivKey, error) {
 
 func infoKey(name string) []byte {
 	return []byte(fmt.Sprintf("%s.info", name))
+}
+
+func ledgerInfoKey(name string) []byte {
+	return []byte(fmt.Sprintf("ledger.%s.info", name))
 }

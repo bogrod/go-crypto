@@ -142,7 +142,8 @@
   packages = [
     "common",
     "db",
-    "log"
+    "log",
+    "test"
   ]
   revision = "d970af87248a4e162590300dbb74e102183a417d"
   version = "v0.8.3"
@@ -164,6 +165,8 @@
   packages = [
     "bcrypt",
     "blowfish",
+    "chacha20poly1305",
+    "internal/chacha20",
     "nacl/secretbox",
     "openpgp/armor",
     "openpgp/errors",
@@ -174,9 +177,15 @@
   ]
   revision = "5ba7f63082460102a45837dbd1827e10f9479ac0"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["cpu"]
+  revision = "c11f84a56e43e20a78cee75a7c034031ecf57d1f"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "365c3bca75ced49eb0ebcdc5c98fd47b534850684fcc94c16d1bc6a671116395"
+  inputs-digest = "91cf59067cb38d4b286a8155651b9b236a38771b133b31171c44115cbb59d6e1"
   solver-name = "gps-cdcl"
   solver-version = 1
